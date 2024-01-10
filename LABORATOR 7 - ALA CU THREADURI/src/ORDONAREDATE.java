@@ -1,38 +1,39 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class ORDONAREDATE {
-    private static final int NUM_THREADS = 4;
-
     public static void main(String[] args) {
         String DATEDINCSV = "world food production.csv";
-        List<String> liniidinCSV = new ArrayList<>();
+        String[] liniidinCSV = new String[1000];
+
+        int I = 0;
 
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(DATEDINCSV))) {
             String linie;
             while ((linie = bufferedReader.readLine()) != null) {
-                liniidinCSV.add(linie);
+                if (I == liniidinCSV.length) {
+                    liniidinCSV = Arrays.copyOf(liniidinCSV, liniidinCSV.length * 2);
+                }
+                liniidinCSV[I++] = linie;
             }
-            ExecutorService executorService = Executors.newFixedThreadPool(NUM_THREADS);
-            liniidinCSV.forEach(line -> executorService.submit(() -> afisare(line)));
-            executorService.shutdown();
-            while (!executorService.isTerminated()) {
+            System.out.println("Elemente din prima coloană care încep cu 'A':");
+            for (int i = 0; i < I; i++) {
+                String primaColoana = liniidinCSV[i].split(",")[0].trim();
+                if (primaColoana.startsWith("A")) {
+                    System.out.println(primaColoana);
+                }
             }
-            liniidinCSV.sort(Comparator.comparing(o -> o.split(",")[1]));
-            liniidinCSV.forEach(System.out::println);
+            Arrays.sort(liniidinCSV, 0, I, Comparator.comparing(o -> o.split(",")[1]));
+            /*System.out.println("-------------");
+            for (int i = 0; i < currentIndex; i++) {
+                System.out.println(liniidinCSV[i]);
+            }*/ //ca sa afisez tot
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private static void afisare(String line) {
-        System.out.println(line);
     }
 }
